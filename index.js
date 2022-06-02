@@ -1,14 +1,14 @@
-const Redux = require ('redux')
+const Redux = require('redux')
 const { createStore, combineReducers } = Redux
 //arrow function
 //nome: criarContrato
 //recebe: nome e valor
 //devolve: um JSON com type = CRIAR_CONTRATO e payload igual a um JSON com nome e valor
-const criarContrato = (nome, valor) => {
+const criarContrato = (nome) => {
     return {
         type: "CRIAR_CONTRATO",
         payload: {
-            nome, valor
+            nome
         }
     }
 }
@@ -16,7 +16,7 @@ const criarContrato = (nome, valor) => {
 //cancelarContrato
 //recebe: nome
 //devolve: um JSON com type = CANCELAR_CONTRATO e payload igual a um JSON com nome
-function cancelarContrato (nome){
+function cancelarContrato(nome) {
     return {
         type: "CANCELAR_CONTRATO",
         payload: {
@@ -25,10 +25,12 @@ function cancelarContrato (nome){
     }
 }
 //uma função criadora de ação para solicitações de cashback
-const solicitarCashback = (nome, valor) => {
+const solicitarCashback = (nome) => {
     return {
         type: "SOLICITAR_CASHBACK",
-        payload: {nome, valor}
+        payload: {
+            nome
+        }
     }
 }
 
@@ -40,16 +42,16 @@ const solicitarCashback = (nome, valor) => {
 //detalhe: somente operar no estado se o type for apropriado
 //detalhe2: obrigatório usar o spread (...)
 const historicoDePedidosCashbackReducer = (historicoDePedidosCashback = [], acao) => {
-    if (acao.type === "SOLICITAR_CASHBACK"){
+    if (acao.type === "SOLICITAR_CASHBACK") {
         return [
             ...historicoDePedidosCashback, acao.payload
         ]
     }
-    return historicoDePedidosCashback  
+    return historicoDePedidosCashback
 }
 //implementar o reducer que manipula o caixa
 //o caixa começa zerado
-function caixaReducer(valorEmCaixa = 0, acao){
+function caixaReducer(valorEmCaixa = 0, acao) {
     if (acao.type === "SOLICITAR_CASHBACK")
         return valorEmCaixa - acao.payload.valor
     if (acao.type === "CRIAR_CONTRATO")
@@ -59,13 +61,13 @@ function caixaReducer(valorEmCaixa = 0, acao){
 //implementar o reducer que lida com a lista de contratos
 //ele pode criar contratos e cancelar contratos
 const contratosReducer = (listaDeContratosAtual = [], acao) => {
-    if (acao.type === "CRIAR_CONTRATO"){
+    if (acao.type === "CRIAR_CONTRATO") {
         return [
             ...listaDeContratosAtual,
             acao.payload
         ]
     }
-    if (acao.type === "CANCELAR_CONTRATO"){
+    if (acao.type === "CANCELAR_CONTRATO") {
         return listaDeContratosAtual.filter(contrato => contrato.nome !== acao.payload.nome)
     }
     return listaDeContratosAtual
@@ -101,8 +103,59 @@ console.log(store.getState())
 store.dispatch(cancelarContrato('Maria'))
 console.log(store.getState())
 
+function transacao(store) {
+    const nomes = ['Raul', 'Luar', 'Gabriel', 'Pedro'];
+    const operacoes = {
+        0: criacaoContratoAndDispatchar,
+        1: cancelarContratoAndDispatchar,
+        2: calcularCashbackAndDispatchar
+    };
 
+    const operationIndex = Math.floor(Math.random() * (2 - 0 + 1) + 0);
+    const personNameIndex = Math.floor(Math.random() * (nomes.length - 0 + 1) + 0);
+    const operacaoSorteada = operacoes[operationIndex];
+    const nomeSorteado = nomes[personNameIndex];
 
+    operacaoSorteada(nomeSorteado);
+}
 
+function criacaoContratoAndDispatchar(nome) {
+    const criarContratoAction = {
+        type: "CRIAR_CONTRATO",
+        payload: {
+            nome
+        }
+    };
 
+    store.dispatch(criarContratoAction);
+}
 
+function cancelarContratoAndDispatchar(nome) {
+    const cancelarContratoAction = {
+        type: "CANCELAR_CONTRATO",
+        payload: {
+            nome
+        }
+    };
+
+    const randomNumber = Math.floor(Math.random() * (2 - 0 + 1) + 0);
+
+}
+
+function calcularCashbackAndDispatchar(nome) {
+    const cashback = Math.floor(Math.random() * (30 - 10 + 1) + 10);
+
+    const solicitarCashbackAction = {
+        type: "SOLICITAR_CASHBACK",
+        payload: {
+            nome,
+            cashback
+        }
+    };
+
+    store.dispatch(solicitarCashbackAction);
+}
+
+while (true) {
+    setInterval(transacao)
+}
